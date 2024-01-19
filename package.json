@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/Nikoooh/FullStackOpen_NikoT_Osa3#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }
