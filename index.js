@@ -1,7 +1,13 @@
 const express = require('express')
+const morgan = require('morgan')
+
 const app = express()
 
 app.use(express.json())
+app.use(morgan((tokens, req, res) => {
+    return `${tokens.method(req, res)} ${tokens.url(req, res)} ${tokens.status(req, res)} ${tokens.req(req, res, 'content-length')} - ${tokens['response-time'](req,res)} ms ${JSON.stringify(req.body)}`
+    
+}))
 
 let phonebook = [
     {
@@ -66,7 +72,7 @@ app.post('/api/persons', (req, res) => {
 
     if (!req.body.name || !req.body.number) {
         res.status(400).json({error: "Please input name and number"})
-    } else if (phonebook.find((person) => person.name === req.body.name)) {
+    } else if (phonebook.find((person) => (person.name).toLowerCase() === (req.body.name).toLowerCase())) {
         res.status(400).json({error: "Name must be unique"})
     } else {
         phonebook = phonebook.concat(newPerson)
