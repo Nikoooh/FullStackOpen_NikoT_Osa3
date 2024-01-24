@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
@@ -8,6 +9,9 @@ app.use(morgan((tokens, req, res) => {
     return `${tokens.method(req, res)} ${tokens.url(req, res)} ${tokens.status(req, res)} ${tokens.req(req, res, 'content-length')} - ${tokens['response-time'](req,res)} ms ${JSON.stringify(req.body)}`
     
 }))
+
+app.use(cors())
+app.use(express.static('build'))
 
 let phonebook = [
     {
@@ -81,7 +85,7 @@ app.post('/api/persons', (req, res) => {
 
 })
 
-const port = 3001
-app.listen((port), () => {
-    console.log(`Server running in port ${port}`);
+const PORT = 3000 || process.env.PORT
+app.listen((PORT), () => {
+    console.log(`Server running in port ${PORT}`);
 })
