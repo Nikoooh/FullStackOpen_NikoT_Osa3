@@ -8,15 +8,13 @@ const app = express()
 
 app.use(express.json())
 app.use(morgan((tokens, req, res) => {
-    return `${tokens.method(req, res)} ${tokens.url(req, res)} ${tokens.status(req, res)} ${tokens.req(req, res, 'content-length')} - ${tokens['response-time'](req,res)} ms ${JSON.stringify(req.body)}`
-    
+    return `${tokens.method(req, res)} ${tokens.url(req, res)} ${tokens.status(req, res)} ${tokens.req(req, res, 'content-length')} - ${tokens['response-time'](req,res)} ms ${JSON.stringify(req.body)}`   
 }))
 
 app.use(cors())
 app.use(express.static('build'))
 
 const errorHandler = (error, request, response, next) => {
-    console.error(error.message)
   
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
@@ -28,6 +26,10 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'ValidationError') {
         return response.status(400).json({error: error.message})
+    }
+
+    if (error === 'NotUnique') {
+        return response.status(400).json({error: 'Name must be unique'})
     }
 
     next(error)
@@ -78,12 +80,17 @@ app.post('/api/persons', (req, res, next) => {
         name: req.body.name,
         number: req.body.number,
     })
-    
-    newPerson.save().then(result => {
-        res.json(result)
-    })
-        .catch(error => next(error))
-  
+
+    const isUnique = Numbers.findOne({name: newPerson.name})
+
+    if (isUnique) {
+        next('NotUnique')
+    } else {
+        newPerson.save().then(result => {
+            res.json(result)            
+        }).catch(error => next(error))         
+    }
+
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
